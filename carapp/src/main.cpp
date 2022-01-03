@@ -871,10 +871,6 @@ void networkLoop()
 
 void clientLoop()
 {
-    debug("CHECK", canReportAux);
-    debug("CHECK", obdAuxVcu);
-    debug("CHECK", obdAux);
-    debug("CHECK", (obdAuxVcu <= 0 || obdAux <= 0) && !canReportAux);
     bool isLocChanged = isLocationChanged(true);
     if ((obdAuxVcu <= 0 || obdAux <= 0) && !canReportAux)
     {
@@ -905,9 +901,7 @@ void clientLoop()
                                 "&save[time]=" + urlencode(getTime()) +
                                 "&save[field][operator]=" + urlencode(modem.getOperator()) +
                                 "&save[field][battery]=" +
-                                "&save[field][speed]=" + getSpeed() +
-                                "&save[field][latitude]=" + getLongCoord(gpsLat) +
-                                "&save[field][longitude]=" + getLongCoord(gpsLon);
+                                "&save[field][speed]=" + getSpeed();
 
             // if (pids != "")
             // {
@@ -921,6 +915,12 @@ void clientLoop()
             // {
             //     requestStr = requestStr + "&save[field][pid2101]=" + pid2101;
             // }
+
+            if (isLocationValid())
+            {
+                requestStr = requestStr + "&save[field][latitude]=" + getLongCoord(gpsLat);
+                requestStr = requestStr + "&save[field][longitude]=" + getLongCoord(gpsLon);
+            }
 
             if (isCharging())
             {
