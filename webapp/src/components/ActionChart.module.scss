@@ -1,0 +1,31 @@
+@import "../_mixins.scss";
+@import "../_variables.scss";
+
+.Tooltip {
+  background-color: white;
+  padding: 10px;
+  font-size: 0.8em;
+  .Label {
+    color: $color;
+  }
+
+  .Items {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.8em;
+
+    .Item {
+      .Name {
+        margin-right: 5px;
+      }
+
+      .Value {
+        margin-right: 5px;
+      }
+
+      .Appendix {
+      }
+    }
+  }
+}

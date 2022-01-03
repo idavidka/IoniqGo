@@ -1,0 +1,14 @@
+{
+  "short_name": "Ioniq GO",
+  "name": "Ioniq GO",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

@@ -1,0 +1,75 @@
+@import "../_mixins.scss";
+@import "../_variables.scss";
+
+.Container {
+  position: relative;
+  width: 100%;
+  min-width: 60vw;
+  height: 300px;
+
+  :global(.leaflet-disabled) {
+    display: none;
+  }
+
+  :global(.leaflet-routing-container) {
+    display: none;
+    pointer-events: none;
+  }
+
+  &.FullScreen {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+  }
+
+  & > :global(.leaflet-container) {
+    width: 100%;
+    height: 100%;
+
+    :global(.leaflet-bar) {
+      .closeButton {
+        width: auto;
+        padding: 0 10px;
+      }
+      .snapButton {
+        width: auto;
+        padding: 0 10px;
+      }
+    }
+  }
+
+  .marker {
+    .markerIcon {
+      width: 32px;
+    }
+
+    .markerLabel {
+      align-items: center;
+      display: flex;
+      justify-content: center;
+      font-size: 10px;
+      box-shadow: 0 3px 14px #00000066;
+      color: #333;
+      background-color: white;
+      position: absolute;
+      padding: 2px;
+      width: 14px;
+      height: 14px;
+      top: 5px;
+      left: 50%;
+      border-radius: 12px;
+      transform: translateX(-50%);
+    }
+  }
+
+  .markerPopupTitle {
+    font-weight: bold;
+  }
+}
+
+.line:hover {
+  fill: black;
+}

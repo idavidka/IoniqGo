@@ -1,0 +1,17 @@
+RewriteEngine on
+
+RewriteCond %{HTTP_HOST} ^ioniq.idavid.hu$
+RewriteCond %{REQUEST_URI} ^/api
+RewriteRule ^(.*)$ /webapp/api/$1 [L]
+
+RewriteCond %{HTTP_HOST} ^ioniq.idavid.hu$
+RewriteCond %{REQUEST_URI} !^/webapp/build
+RewriteRule ^(.*)$ /webapp/build/$1 [L]
+
+RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -f
+RewriteRule ^(.*)$ $1 [L]
+
+RewriteCond %{HTTP_HOST} ^ioniq.idavid.hu$
+RewriteCond %{REQUEST_URI} ^/webapp/build/
+RewriteCond %{REQUEST_URI} !^/webapp/build/index.html
+RewriteRule ^(.*)$ /webapp/build/index.html [L]

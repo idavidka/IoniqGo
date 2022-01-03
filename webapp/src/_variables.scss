@@ -1,0 +1,30 @@
+$templateSize: 30vw;
+$templateMaxSize: 80vw;
+$templateMobileSize: 95vw;
+$chartSize: 60vw;
+$chartMobileSize: $templateMobileSize;
+$templateMarginTop: #{$templateSize / 4};
+$templateMarginRight: #{$templateSize / 11.11111111111111};
+$templateMarginBottom: #{$templateSize / 5};
+$templateMarginLeft: $templateMarginRight;
+
+$iconSize: 20vw;
+$iconFontSize: #{$iconSize / 2};
+$iconLabel: #{$iconSize / 8.333333333333334};
+$iconMarginTop: #{$iconSize / 4};
+$iconMarginRight: #{$iconSize / 11.11111111111111};
+$iconMarginBottom: #{$iconSize / 10};
+$iconMarginLeft: $iconMarginRight;
+
+$containerMarginTop: #{$iconSize / 20};
+$containerMarginRight: #{$iconSize / 6.6666666666666666};
+$containerMarginBottom: #{$iconSize / 6.6666666666666666};
+$containerMarginLeft: #{$iconSize / 20};
+$containerBorderRadius: 3vw;
+
+$borderRadius: 3vw;
+
+$desktopScaling: 2;
+
+$color: #282c34;
+$darkColor: #191b1d;

@@ -1,0 +1,17 @@
+.loader {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  @keyframes spin {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .loaderIcon {
+    font-size: 4em;
+    animation: spin 4s linear infinite;
+  }
+}

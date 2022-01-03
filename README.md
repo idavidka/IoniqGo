@@ -11,10 +11,44 @@ NOTE: I am using [OBDLink MX+](https://www.obdlink.com/products/obdlink-mxp/)
 
 ## Setup of Web APP
 
-- Upload [webapp](https://github.com/idavidka/IoniqGo/tree/main/webapp) directory to a web service and enjoy your car tracker UI.
-- If you would like to change any part of the code, feel free to contribute on my github or do it localy
+### Requirements
 
-NOTE: If you change it localy, you need to run `npm run build` in [webapp](https://github.com/idavidka/IoniqGo/tree/main/webapp/src) directory once you have done.
+- PHP 5 or higher version
+- MySQL 8
+
+### Install
+
+- Upload [webapp](https://github.com/idavidka/IoniqGo/tree/main/webapp) directory to a web service.
+- Create database from [webapp/database/tables.sql](https://github.com/idavidka/IoniqGo/blob/main/webapp/database/tables.sql) file.
+- Setup your database config in [webapp/application/config/database.php](https://github.com/idavidka/IoniqGo/blob/main/webapp/application/config/database.php)
+
+```
+$db['default'] = array(
+	'dsn'	=> '',
+	'hostname' => '<MYSQL HOST>',
+	'username' => '<MYSQL USERNAME>',
+	'password' => '<MYSQL PASSWORD>',
+	'database' => '<MYSQL DATABASE>',
+	'dbdriver' => 'mysqli',
+	'dbprefix' => '',
+	'pconnect' => FALSE,
+	'db_debug' => (ENVIRONMENT !== 'production'),
+	'cache_on' => FALSE,
+	'cachedir' => '',
+	'char_set' => 'utf8',
+	'dbcollat' => 'utf8_general_ci',
+	'swap_pre' => '',
+	'encrypt' => FALSE,
+	'compress' => FALSE,
+	'stricton' => FALSE,
+	'failover' => array(),
+	'save_queries' => TRUE
+);
+```
+
+- If you would like to change any part of the code, feel free to contribute on my github or do it localy.
+
+NOTE: If you change it localy, you need to run `npm run build` in [webapp/src](https://github.com/idavidka/IoniqGo/tree/main/webapp/src) directory once you have done and upload again.
 
 ## Setup of Lilygo TTGO T-Watch
 
@@ -24,7 +58,7 @@ If you are new to Arduino and Platform.io, you should get some information about
 
 If you are already familiar with them, let's start.
 
-- Open the [settings.h](https://github.com/idavidka/IoniqGo/blob/main/carapp/src/settings.h) file and set the followings:
+- Open the [carapp/src/settings.h](https://github.com/idavidka/IoniqGo/blob/main/carapp/src/settings.h) file and set the followings:
 
 ```
 // User settings

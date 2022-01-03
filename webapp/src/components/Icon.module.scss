@@ -1,0 +1,117 @@
+@import "../_mixins.scss";
+@import "../_variables.scss";
+
+.Container {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  margin: $iconMarginTop $iconMarginRight $iconMarginBottom;
+  justify-content: center;
+  align-items: flex-start;
+  text-decoration: none;
+
+  @media screen and (min-width: 1000px) {
+    margin: calc(#{$iconMarginTop} / #{$desktopScaling})
+      calc(#{$iconMarginRight} / #{$desktopScaling})
+      calc(#{$iconMarginBottom} / #{$desktopScaling});
+  }
+
+  .Icon {
+    width: $iconSize;
+    height: $iconSize;
+    border-radius: $borderRadius;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    background-color: #ececec;
+    color: #555555;
+    position: relative;
+    font-size: $iconFontSize;
+
+    @media screen and (min-width: 1000px) {
+      width: calc(#{$iconSize} / #{$desktopScaling});
+      height: calc(#{$iconSize} / #{$desktopScaling});
+      border-radius: calc(#{$borderRadius} / #{$desktopScaling});
+      font-size: calc(#{$iconFontSize} / #{$desktopScaling});
+    }
+    & > svg {
+      margin-top: auto;
+      margin-bottom: auto;
+      fill: currentColor;
+    }
+    & > .detail {
+      width: 90%;
+      font-size: 0.2em;
+      display: flex;
+      flex-direction: revert;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 0 0.1em 0.5em;
+
+      .label {
+        font-weight: bold;
+        text-align: left;
+        // word-wrap: break-word;
+        // max-width: 48%;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+
+        // @include stroke(1, #00000011);
+      }
+
+      .value {
+        text-align: right;
+        // max-width: 48%;
+        white-space: nowrap;
+      }
+
+      .valueLoader {
+        width: 1.4em;
+        height: 1.4em;
+      }
+    }
+  }
+
+  .Label {
+    width: $iconSize;
+    color: white;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    font-weight: 300;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: $iconLabel;
+    line-height: 1.2em;
+    margin-top: $containerMarginTop;
+    text-decoration: none;
+
+    @media screen and (min-width: 1000px) {
+      width: calc(#{$iconSize} / #{$desktopScaling});
+      font-size: calc(#{$iconLabel} / #{$desktopScaling});
+      margin-top: calc(#{$containerMarginTop} / #{$desktopScaling});
+    }
+  }
+
+  &:active {
+    .Icon,
+    .Label {
+      opacity: 0.5;
+    }
+  }
+}
+
+a:focus > .Container {
+  .Icon {
+    &.Double {
+      @include keyframes("pulsing", "#FFFFFF", 20px);
+      animation: pulsing 2s 3;
+    }
+  }
+  // .Label {
+  //   max-height: none;
+  // }
+}

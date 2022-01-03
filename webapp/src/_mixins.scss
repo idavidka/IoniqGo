@@ -1,0 +1,84 @@
+@mixin keyframes($name, $color, $size: 10px) {
+  @keyframes #{$name} {
+    0% {
+      box-shadow: 0 0 0 0 #{$color + "AA"};
+    }
+
+    70% {
+      box-shadow: 0 0 0 #{$size} #{$color + "00"};
+    }
+
+    100% {
+      box-shadow: 0 0 0 0 #{$color + "00"};
+    }
+  }
+}
+
+@mixin bounce-out() {
+  @keyframes bounce-out {
+    0% {
+      opacity: 0;
+    }
+
+    30% {
+      opacity: 0;
+    }
+
+    35% {
+      opacity: 0.8;
+    }
+
+    65% {
+      opacity: 0.8;
+    }
+
+    0% {
+      opacity: 0;
+    }
+
+    100% {
+      opacity: 0;
+    }
+  }
+
+  animation: bounce-out 10s ease-in-out infinite;
+}
+
+/// Stroke font-character
+/// @param  {Integer} $stroke - Stroke width
+/// @param  {Color}   $color  - Stroke color
+/// @return {List}            - text-shadow list
+@function stroke($stroke, $color) {
+  $shadow: ();
+  $from: $stroke * -1;
+  @for $i from $from through $stroke {
+    @for $j from $from through $stroke {
+      $shadow: append($shadow, $i * 1px $j * 1px 0 $color, comma);
+    }
+  }
+  @return $shadow;
+}
+/// Stroke font-character
+/// @param  {Integer} $stroke - Stroke width
+/// @param  {Color}   $color  - Stroke color
+/// @return {Style}           - text-shadow
+@mixin stroke($stroke, $color) {
+  text-shadow: stroke($stroke, $color);
+}
+
+@mixin childTemplates {
+  @for $i from 1 through 10 {
+    &.level-#{$i} {
+      // margin-left: #{$i * 20}px;
+      width: calc(100% - #{$i * 20}px);
+    }
+  }
+}
+
+@mixin indentTemplate {
+  @for $i from 1 through 10 {
+    &.templateIndent-#{$i} {
+      border-right: 1px solid white;
+    }
+  }
+}
