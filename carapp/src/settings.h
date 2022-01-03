@@ -5,7 +5,7 @@
 #define SIM_PIN "12345"
 
 // Server settings
-#define SERVER "ioniq.idavid.hu"
+#define SERVER "ioniq.demo.hu"
 #define PATH "/api/pull/20"
 #define PORT 80
 
