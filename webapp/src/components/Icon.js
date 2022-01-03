@@ -4,8 +4,6 @@ import * as Gi from "react-icons/gi";
 import { RiPrinterFill, RiBitCoinFill } from "react-icons/ri";
 import { ImPrinter } from "react-icons/im";
 import { SiRevolut } from "react-icons/si";
-import { ReactComponent as Vivid } from "./icons/vivid.svg";
-import { ReactComponent as CryptoCom } from "./icons/crcom.svg";
 import { MdBackup } from "react-icons/md";
 
 const Icons = {
@@ -14,8 +12,6 @@ const Icons = {
   RiPrinterFill,
   RiBitCoinFill,
   SiRevolut,
-  Vivid,
-  CryptoCom,
   MdBackup,
 };
 

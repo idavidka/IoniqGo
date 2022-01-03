@@ -23,7 +23,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-$config['base_url'] = 'ioniq.idavid.hu';
+$config['base_url'] = 'ioniq.demo.hu';
 
 /*
 |--------------------------------------------------------------------------
