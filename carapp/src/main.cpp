@@ -96,7 +96,7 @@ long getSpeed()
         return obdSpeed;
     }
 
-    return gpsSpeed;
+    return 0;
 }
 
 void setLowEnergy(bool forceSleep = false, bool deep = false)
@@ -776,7 +776,7 @@ void measureLoop()
     getPidValue("auxiliary", pid2101, readData);
     obdAux = readData.toFloat();
 
-    if (obdAux < 10 && canReportAux)
+    if (obdAux < 10)
     {
         message("Read voltage", []() -> bool
                 {
@@ -843,7 +843,7 @@ void obdLoop()
 
 void networkLoop()
 {
-    if (obdAuxVcu <= 0)
+    if ((obdAuxVcu <= 0 || obdAux <= 0) && !canReportAux)
     {
         if (!isLocationValid() || (!isCharging() && !isLocationChanged()))
         {
@@ -871,9 +871,14 @@ void networkLoop()
 
 void clientLoop()
 {
-    if (obdAuxVcu <= 0)
+    debug("CHECK", canReportAux);
+    debug("CHECK", obdAuxVcu);
+    debug("CHECK", obdAux);
+    debug("CHECK", (obdAuxVcu <= 0 || obdAux <= 0) && !canReportAux);
+    bool isLocChanged = isLocationChanged(true);
+    if ((obdAuxVcu <= 0 || obdAux <= 0) && !canReportAux)
     {
-        if (!isLocationValid() || (!isCharging() && !isLocationChanged(true)))
+        if (!isLocationValid() || (!isCharging() && !isLocChanged))
         {
             return;
         }
