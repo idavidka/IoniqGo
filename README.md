@@ -1,6 +1,6 @@
 # Ioniq GO
 
-Lilygo TTGO T-Watch software for reading OBDII data from Hyunday Ioniq EV 28 kWh with GPS location as well. Data can be published to any server via GSM. Simple tracking site attached in webapp directory.
+Lilygo TTGO T-Watch software for reading OBDII data from Hyundai Ioniq EV 28 kWh with GPS location as well. Data can be published to any server via GSM. Simple tracking site attached in webapp directory.
 
 ## Needed Hardware
 
