@@ -20,7 +20,7 @@ NOTE: I am using [OBDLink MX+](https://www.obdlink.com/products/obdlink-mxp/)
 
 - Upload [webapp](https://github.com/idavidka/IoniqGo/tree/main/webapp) directory to a web service.
 - Create database from [webapp/database/tables.sql](https://github.com/idavidka/IoniqGo/blob/main/webapp/database/tables.sql) file.
-- Setup your database config in [webapp/application/config/database.php](https://github.com/idavidka/IoniqGo/blob/main/webapp/application/config/database.php)
+- Setup your database config in [webapp/api/application/config/database.php](https://github.com/idavidka/IoniqGo/blob/main/webapp/api/application/config/database.php)
 
 ```
 $db['default'] = array(
