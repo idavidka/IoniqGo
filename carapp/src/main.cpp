@@ -36,8 +36,11 @@ RTC_DATA_ATTR bool gpsEnabled = false;
 RTC_DATA_ATTR float gpsLat = 0;
 RTC_DATA_ATTR float gpsLon = 0;
 RTC_DATA_ATTR float gpsSpeed = 0;
+String gpsLocations = "";
 RTC_DATA_ATTR float lastGpsLat = 0;
 RTC_DATA_ATTR float lastGpsLon = 0;
+RTC_DATA_ATTR float lastFrequentedGpsLat = 0;
+RTC_DATA_ATTR float lastFrequentedGpsLon = 0;
 
 // OBD configs
 ELM327 myELM327;
@@ -66,6 +69,7 @@ String pid2105 = "";
 // Counters
 int loopCounter = 0;
 RTC_DATA_ATTR int bootCounter = 0;
+RTC_DATA_ATTR int errorCounter = 0;
 RTC_DATA_ATTR int noLocationChangedCounter = 0;
 
 bool isMeasureOK()
@@ -432,6 +436,11 @@ void setupModem()
 
 void setupBluetooth()
 {
+    if (errorCounter > 5)
+    {
+        ESP.restart();
+        return;
+    }
 
     bool inited = message(
         "OBDLink connection", []() -> bool
@@ -469,6 +478,7 @@ void setupBluetooth()
 
     if (!inited)
     {
+        errorCounter++;
         return;
     }
 
@@ -603,7 +613,7 @@ bool isAuxReportTime()
     return false;
 }
 
-bool isLocationChanged(bool canIncrease = false)
+bool isLocationChanged(bool canIncrease = false, bool simple = false)
 {
     debug("Location: Lat", getLongCoord(gpsLat));
     debug("Location: Last Lat", getLongCoord(lastGpsLat));
@@ -843,6 +853,12 @@ void obdLoop()
 
 void networkLoop()
 {
+    if (errorCounter > 5)
+    {
+        ESP.restart();
+        return;
+    }
+
     if ((obdAuxVcu <= 0 || obdAux <= 0) && !canReportAux)
     {
         if (!isLocationValid() || (!isCharging() && !isLocationChanged()))
@@ -851,8 +867,14 @@ void networkLoop()
         }
     }
 
-    message("Network initialization", []() -> bool
-            { return simUnlocked && (modem.isNetworkConnected() || modem.waitForNetwork(1000)); });
+    bool inited = message("Network initialization", []() -> bool
+                          { return simUnlocked && (modem.isNetworkConnected() || modem.waitForNetwork(1000)); });
+
+    if (!inited)
+    {
+        errorCounter++;
+        return;
+    }
 
     message(
         "Network status", []() -> bool
@@ -896,12 +918,12 @@ void clientLoop()
     message(
         "Sending data", []() -> bool
         {
-            String requestStr = String("GET ") + PATH +
-                                "?Authorization=" + urlencode("Bearer SpyWatch") +
-                                "&save[time]=" + urlencode(getTime()) +
-                                "&save[field][operator]=" + urlencode(modem.getOperator()) +
-                                "&save[field][battery]=" +
-                                "&save[field][speed]=" + getSpeed();
+            String requestStr =
+                "Authorization=" + urlencode("Bearer SpyWatch") +
+                "&save[time]=" + urlencode(getTime()) +
+                "&save[field][operator]=" + urlencode(modem.getOperator()) +
+                "&save[field][battery]=" +
+                "&save[field][speed]=" + getSpeed();
 
             // if (pids != "")
             // {
@@ -918,8 +940,9 @@ void clientLoop()
 
             if (isLocationValid())
             {
-                requestStr = requestStr + "&save[field][latitude]=" + getLongCoord(gpsLat);
-                requestStr = requestStr + "&save[field][longitude]=" + getLongCoord(gpsLon);
+                // requestStr = requestStr + "&save[field][latitude]=" + getLongCoord(gpsLat);
+                // requestStr = requestStr + "&save[field][longitude]=" + getLongCoord(gpsLon);
+                requestStr = requestStr + "&save[field][locations]=" + gpsLocations;
             }
 
             if (isCharging())
@@ -953,7 +976,7 @@ void clientLoop()
 
             requestStr = requestStr + "&save[field][carId]=" + CAR_ID;
 
-            requestStr = requestStr + " HTTP/1.1\r\n";
+            // requestStr = requestStr + " HTTP/1.1\r\n";
             debug("Send request", requestStr);
 
             if (AVOID_SENDING)
@@ -961,8 +984,12 @@ void clientLoop()
                 return true;
             }
 
-            client.print(requestStr);
+            client.print(String("POST ") + PATH + " HTTP/1.1\r\n");
             client.print(String("Host: ") + SERVER + "\r\n");
+            client.print("Content-Length: ");
+            client.println(requestStr.length());
+            client.println();
+            client.println(requestStr);
             client.print("Connection: close\r\n\r\n");
             client.println();
             String str = "Connecting to " + String(SERVER);
@@ -991,7 +1018,7 @@ void clientLoop()
         },
         30000L);
 }
-
+int gpsChainMillis = 0;
 void gpsLoop()
 {
     message(
@@ -1006,9 +1033,8 @@ void gpsLoop()
                 // Turn on SIM868 GPIO1, which is responsible for enabling the SIM868 GPS chip
                 modem.sendAT("+CGPIO=0,57,1,1");
                 modem.waitResponse();
+                delay(1000);
             }
-
-            delay(1000);
 
             if (gpsEnabled || modem.enableGPS())
             {
@@ -1035,6 +1061,13 @@ void gpsLoop()
             return false;
         },
         10000L);
+
+    if (gpsLat > 0 && gpsLon > 0 && (gpsLocations == "" || !areCoordsEquals(gpsLat, lastFrequentedGpsLat, true) || !areCoordsEquals(gpsLon, lastFrequentedGpsLon, true)))
+    {
+        gpsLocations = gpsLocations + (gpsLocations != "" ? ";" : "") + getLongCoord(gpsLat) + "," + getLongCoord(gpsLon);
+        lastFrequentedGpsLat = gpsLat;
+        lastFrequentedGpsLon = gpsLon;
+    }
 
     message("GPS data", String(gpsSpeed) + " km/h, " + String(gpsLat) + ", " + String(gpsLon));
 }
@@ -1072,6 +1105,8 @@ void loop()
     networkLoop();
     clientLoop();
 
+    gpsLocations = "";
+
     loopCounter++;
     debug("Boot count: ", bootCounter);
     debug("Loop count:", loopCounter);
@@ -1094,9 +1129,18 @@ void loop()
     }
     else
     {
+
+        gpsChainMillis = millis();
         message(
             "Next request", []() -> bool
-            { return false; },
+            {
+                if (MORE_FREQUENTED_LOCATIONS && millis() - gpsChainMillis > 5000L)
+                {
+                    gpsLoop();
+                    gpsChainMillis = millis();
+                }
+                return false;
+            },
             getTimeout() * 1000, []() {}, "Reload");
     }
 }

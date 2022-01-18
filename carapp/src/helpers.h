@@ -54,13 +54,14 @@ void debug(const char *message)
     debug(String(message));
 }
 
-bool areCoordsEquals(float coord1, float coord2)
+bool areCoordsEquals(float coord1, float coord2, bool precise = false)
 {
-    float start1 = coord1 - 0.001;
-    float end1 = coord1 + 0.001;
+    double diff = precise ? 0.00001 : 0.001;
+    float start1 = coord1 - diff;
+    float end1 = coord1 + diff;
 
-    float start2 = coord2 - 0.001;
-    float end2 = coord2 + 0.001;
+    float start2 = coord2 - diff;
+    float end2 = coord2 + diff;
 
     return (coord1 > start2 && coord1 < end2) || (coord2 > start1 && coord2 < end1);
 }

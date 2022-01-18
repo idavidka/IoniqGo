@@ -22,8 +22,9 @@
 #define TIME_TO_SLEEP_10s 10      /* Time ESP32 will go to sleep (in seconds) */
 
 #define DEBUG false
-#define DEEP_SLEEP true
+#define DEEP_SLEEP false
 #define TEST false
+#define MORE_FREQUENTED_LOCATIONS true
 #define PRINTLN_ALLOWED false
 #define INVALID_LOCATION_ALLOWED false
 #define DEBUG_TIMEOUT false
