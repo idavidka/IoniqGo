@@ -263,6 +263,67 @@ void clockLoop()
     }
 }
 
+int gpsChainMillis = 0;
+
+bool getGpsData()
+{
+    if (!gpsEnabled)
+    {
+        debug("GPS: enabling");
+
+        ttgo->enableModemGPSPower();
+
+        // Turn on SIM868 GPIO1, which is responsible for enabling the SIM868 GPS chip
+        modem.sendAT("+CGPIO=0,57,1,1");
+        modem.waitResponse();
+        delay(1000);
+    }
+
+    if (gpsEnabled || modem.enableGPS())
+    {
+        gpsEnabled = true;
+
+        modem.getGPS(&gpsLat, &gpsLon, &gpsSpeed); //, &gpsAlt, &gpsVsat, &gpsUsat, &gpsAccuracy);
+
+        if (TEST || DEBUG_LOCATION || INVALID_LOCATION_ALLOWED)
+        {
+            gpsLat = 47.8179054260253888;
+            gpsLon = 18.8781318664550781;
+            gpsSpeed = 120;
+        }
+
+        debug("Location: Lat", gpsLat);
+        debug("Location: Lon", gpsLon);
+
+        if (gpsLat > 0 && gpsLon > 0)
+        {
+            if (gpsLocations == "" || !areCoordsEquals(gpsLat, lastFrequentedGpsLat, true) || !areCoordsEquals(gpsLon, lastFrequentedGpsLon, true))
+            {
+                gpsLocations = gpsLocations + (gpsLocations != "" ? ";" : "") + getLongCoord(gpsLat) + "," + getLongCoord(gpsLon);
+                lastFrequentedGpsLat = gpsLat;
+                lastFrequentedGpsLon = gpsLon;
+            }
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void frequentedGpsLoop()
+{
+    // Serial.println("AS1: " + String(millis() - gpsChainMillis));
+    // Serial.println("AS1.1: " + String(gpsEnabled));
+    // Serial.println("AS1.2: " + String(MORE_FREQUENTED_LOCATIONS));
+    // Serial.println("AS1.3: " + String(millis() - gpsChainMillis > 5000L));
+    // Serial.println("AS1.4: " + String(gpsEnabled && MORE_FREQUENTED_LOCATIONS && millis() - gpsChainMillis > 5000L));
+    if (gpsEnabled && MORE_FREQUENTED_LOCATIONS && millis() - gpsChainMillis > 5000L)
+    {
+        getGpsData();
+        gpsChainMillis = millis();
+    }
+}
+
 bool message(String label, String message = "", bool isError = false)
 {
     int16_t w = tft->width();
@@ -296,6 +357,7 @@ bool message(String label, String message = "", bool isError = false)
 
     debug(label, msg);
     checkIRQ();
+    frequentedGpsLoop();
 
     return true;
 }
@@ -328,6 +390,7 @@ bool message(
     {
         checkIRQ();
         ret = func() ? 1 : 0;
+        frequentedGpsLoop();
         if (!ret)
         {
             sec = (timeout + 1000 - (millis() - startMillis)) / 1000;
@@ -851,6 +914,15 @@ void obdLoop()
     }
 }
 
+void gpsLoop()
+{
+    message(
+        "GPS initialization", getGpsData,
+        10000L);
+
+    message("GPS data", String(gpsSpeed) + " km/h, " + String(gpsLat) + ", " + String(gpsLon));
+}
+
 void networkLoop()
 {
     if (errorCounter > 5)
@@ -921,9 +993,13 @@ void clientLoop()
             String requestStr =
                 "Authorization=" + urlencode("Bearer SpyWatch") +
                 "&save[time]=" + urlencode(getTime()) +
-                "&save[field][operator]=" + urlencode(modem.getOperator()) +
-                "&save[field][battery]=" +
-                "&save[field][speed]=" + getSpeed();
+                "&save[field][operator]=" + urlencode(modem.getOperator());
+            // "&save[field][battery]=" +
+
+            if (isIgnited())
+            {
+                requestStr = requestStr + "&save[field][speed]=" + getSpeed();
+            }
 
             // if (pids != "")
             // {
@@ -1018,59 +1094,6 @@ void clientLoop()
         },
         30000L);
 }
-int gpsChainMillis = 0;
-void gpsLoop()
-{
-    message(
-        "GPS initialization", []() -> bool
-        {
-            if (!gpsEnabled)
-            {
-                debug("GPS: enabling");
-
-                ttgo->enableModemGPSPower();
-
-                // Turn on SIM868 GPIO1, which is responsible for enabling the SIM868 GPS chip
-                modem.sendAT("+CGPIO=0,57,1,1");
-                modem.waitResponse();
-                delay(1000);
-            }
-
-            if (gpsEnabled || modem.enableGPS())
-            {
-                gpsEnabled = true;
-
-                modem.getGPS(&gpsLat, &gpsLon, &gpsSpeed); //, &gpsAlt, &gpsVsat, &gpsUsat, &gpsAccuracy);
-
-                if (TEST || DEBUG_LOCATION || INVALID_LOCATION_ALLOWED)
-                {
-                    gpsLat = 47.8179054260253888;
-                    gpsLon = 18.8781318664550781;
-                    gpsSpeed = 120;
-                }
-
-                debug("Location: Lat", gpsLat);
-                debug("Location: Lon", gpsLon);
-
-                if (gpsLat > 0 && gpsLon > 0)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        },
-        10000L);
-
-    if (gpsLat > 0 && gpsLon > 0 && (gpsLocations == "" || !areCoordsEquals(gpsLat, lastFrequentedGpsLat, true) || !areCoordsEquals(gpsLon, lastFrequentedGpsLon, true)))
-    {
-        gpsLocations = gpsLocations + (gpsLocations != "" ? ";" : "") + getLongCoord(gpsLat) + "," + getLongCoord(gpsLon);
-        lastFrequentedGpsLat = gpsLat;
-        lastFrequentedGpsLon = gpsLon;
-    }
-
-    message("GPS data", String(gpsSpeed) + " km/h, " + String(gpsLat) + ", " + String(gpsLon));
-}
 
 void resetData()
 {
@@ -1099,8 +1122,8 @@ void loop()
     }
 
     simLoop();
-    obdLoop();
     gpsLoop();
+    obdLoop();
     measureLoop();
     networkLoop();
     clientLoop();
@@ -1133,14 +1156,7 @@ void loop()
         gpsChainMillis = millis();
         message(
             "Next request", []() -> bool
-            {
-                if (MORE_FREQUENTED_LOCATIONS && millis() - gpsChainMillis > 5000L)
-                {
-                    gpsLoop();
-                    gpsChainMillis = millis();
-                }
-                return false;
-            },
+            { return false; },
             getTimeout() * 1000, []() {}, "Reload");
     }
 }
